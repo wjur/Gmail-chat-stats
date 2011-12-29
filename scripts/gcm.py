@@ -17,7 +17,7 @@ chats_name = '[Gmail]/Chats'
 # This is your gmail login (without '@gmail.com')
 #
 # login = 'example'
-login = ''
+login = 'l33t.h4x10r'
 
 # Ungly global vars :D
 full_login = login + '@gmail.com'
@@ -47,9 +47,9 @@ def parse_attr(msg):
 	time_ms = time_element.getAttribute("ms")
 	timestamp = datetime.datetime.fromtimestamp(int(time_ms) / 1000)
 
-	to_attr = msg.getAttribute('to')
+	to_attr = msg.getAttribute('to').lower()
 	to_attr = to_attr.split('/')[0]
-	from_attr = msg.getAttribute('from')
+	from_attr = msg.getAttribute('from').lower()
 	from_attr = from_attr.split('/')[0]
 	#rawtimestamp = msg.getAttribute('int:time-stamp')
 	#print 'aaa', rawtimestamp
