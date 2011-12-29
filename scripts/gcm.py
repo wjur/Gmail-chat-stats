@@ -19,9 +19,16 @@ chats_name = '[Gmail]/Chats'
 # login = 'example'
 login = ''
 
+# Ungly global vars :D
 full_login = login + '@gmail.com'
+table_name = 'stats'
 
 conn = sqlite3.connect('./gmail_stat.db')
+# Crate a table stats if it does not exist
+conn.execute('CREATE TABLE if not exists '+table_name+'(person TEXT,  mid INTEGER,  year  INTEGER,  month  INTEGER,  day INTEGER,  hour INTEGER,  minute INTEGER, datetime TEXT);')
+
+# We need to clear the table because the retreiving is not incremetal
+conn.execute('delete from '+table_name+';')
 
 def parse_folders(folders):
 	print folders
@@ -62,7 +69,7 @@ def add_msg_to_stats(mid, msg):
 	conv_with = sender
 	if (sender == full_login):
 		conv_with = receiver
-	sqlcmd = "insert into stats values ('%s', %d,  %d,  %d,  %d,  %d,  %d, '%s')" % (conv_with,  mid,  timestamp.year,  timestamp.month,  timestamp.day,  timestamp.hour,  timestamp.minute, timestamp.isoformat(' '))
+	sqlcmd = "insert into %s values ('%s', %d,  %d,  %d,  %d,  %d,  %d, '%s')" % (table_name,conv_with,  mid,  timestamp.year,  timestamp.month,  timestamp.day,  timestamp.hour,  timestamp.minute, timestamp.isoformat(' '))
 	# print sqlcmd
 	conn.execute(sqlcmd)
 
