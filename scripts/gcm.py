@@ -7,15 +7,21 @@ from xml.dom import minidom
 import datetime
 import sqlite3
 
-login = ''
+# If you use language other than English
+# you have to change 'chats_name'
+# (Script will print possible values)
+#
+#chats_name = '[Gmail]/Pikaviestit' # Finnish :)
 chats_name = '[Gmail]/Chats'
 
-chats_name = '[Gmail]/Pikaviestit'
-login = 'wojtek.jurczyk'
-#login = 'l33t.h4x10r'
+# This is your gmail login (without '@gmail.com')
+#
+# login = 'example'
+login = ''
+
 full_login = login + '@gmail.com'
 
-conn = sqlite3.connect('./gmail_wj_stat.db')
+conn = sqlite3.connect('./gmail_stat.db')
 
 def parse_folders(folders):
 	print folders
