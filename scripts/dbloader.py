@@ -14,4 +14,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     dbloader = DbLoader(args.username, args.password, args.chats, args.mode)
     dbloader.Process()
-    print "\nDone."
+    print "\n"

@@ -25,7 +25,10 @@ class DbLoader:
                 print "\t", parts[2]
     def __ConnectToDb(self):
         self.conn = sqlite3.connect(self.dbFile)
-        self.conn.execute('DROP TABLE '+self.tableName+';')
+        try:
+            self.conn.execute('DROP TABLE '+self.tableName+';')
+        except:
+            pass
         self.conn.execute('CREATE TABLE '+self.tableName+'(person TEXT, dir INTEGER,  mid INTEGER,  year  INTEGER,  month  INTEGER,  day INTEGER,  hour INTEGER,  minute INTEGER, datetime TEXT);')
         
     def __GetMsgAttr(self, msg):
@@ -87,7 +90,9 @@ class DbLoader:
             self.__Finalise()
     
     def __Finalise(self):
-        self.fetcher.Finalise()
-        self.conn.commit()
-        self.conn.close()
-        
+        try:
+            self.fetcher.Finalise()
+            self.conn.commit()
+            self.conn.close()
+        except:
+            return
