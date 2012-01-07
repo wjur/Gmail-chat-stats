@@ -1,4 +1,5 @@
 import os
+import sys
 import datetime
 import sqlite3
 from xml.dom import minidom
@@ -75,8 +76,12 @@ class DbLoader:
                 self.__ConnectToDb()
                 #now we can process all chats
                 ids = self.fetcher.GetIDs()
+                total = len(ids)
+                counter = 1
                 for mid in ids:
-                    print "Processing: ", mid
+                    sys.stdout.write( "\rProcessing: %d/%d (%d%%)" % (counter, total, (100*counter)/total))
+                    sys.stdout.flush()
+                    counter = counter + 1
                     #chat by chat get the XML and process it
                     self.__ProcessChat(mid, self.fetcher.GetXMLString(mid))
             self.__Finalise()
