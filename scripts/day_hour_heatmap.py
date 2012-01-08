@@ -5,7 +5,7 @@ import sqlite3
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 #username = 'yourlogin'
-username = 'wojtek.jurczyk'
+username = ''
 
 def generate(sqldb, name='test', yearmin=None, yearmax=None, monthmin=None, monthmax=None, daymin=None, daymax=None, hourmin=None, hourmax=None, direction=None, people=None, title=""):
     where = []
@@ -90,8 +90,13 @@ print '4'
 generate(sqldb,yearmax=2011, yearmin=2011, name="2011", title = ' (2011)')
 print '5'
 generate(sqldb,yearmax=2012, yearmin=2012, name="2012", title = ' (2012)')
+print '6'
+generate(sqldb, name="total", title = ' (total)')
 
-html = """<html><body><table><tr><td><img src="heatmap_2008.png"></li></td></tr>
+
+html = """<html><body><table>
+<tr><td><img src="heatmap_total.png"></li></td></tr>
+<tr><td><img src="heatmap_2008.png"></li></td></tr>
 <tr><td><img src="heatmap_2009.png"></li></td></tr>
 <tr><td><img src="heatmap_2010.png"></li></td></tr>
 <tr><td><img src="heatmap_2011.png"></li></td></tr>
