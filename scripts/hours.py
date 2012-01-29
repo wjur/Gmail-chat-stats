@@ -6,10 +6,10 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.interpolate import spline
 
 #username = 'yourlogin'
-username = ''
+username = 'wojtek.jurczyk'
 
 def generate(sqldb, name='test', yearmin=None, yearmax=None, monthmin=None, monthmax=None, daymin=None, daymax=None, hourmin=None, hourmax=None, direction=None, people=None, title=""):
-    """ 2d histogram (day/hour) in selected month """
+    """ Calculates distribution of the messages over hours in the selected time span"""
     where = []
     if yearmin != None: where.append('year >= '+ str(yearmin))
     if yearmax != None: where.append('year <= '+ str(yearmax))
@@ -51,36 +51,29 @@ def generate(sqldb, name='test', yearmin=None, yearmax=None, monthmin=None, mont
     #print wheresql
     
     
-    heatmap = [0 for x in range(32)]
-    for x in range(32):
-	    heatmap[x] = [0 for y in range(24)]
+    x = [i for i in range(24)]
+    y = [0 for i in range(24)]
 
     conn = sqlite3.connect(sqldb)	
-    query = "select day,hour, count(*) from stats "+wheresql+" group by day, hour order by hour;"
+    query = "select hour, count(*) from stats "+wheresql+" group by hour order by hour;"
     cur = conn.cursor()
     cur.execute(query)
     for row in cur:
-	    heatmap[int(row[0])][row[1]] = row[2]
+	    y[int(row[0])-1] = row[1]
     conn.close()
-    print heatmap
-    extent = [0, 24, 0, 31]
-    plt.clf()
-    plt.ylabel('Days')
-    plt.xlabel('Hour')
-    plt.title('Distribution of the messages over days and hours' + title)
-    #plt.yticks(np.arange(0.0,7.0,1)+0.5,('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun') )
-    #plt.xticks(np.arange(0,24,1)+0.5, np.arange(0,24,1))
-    ax = plt.subplot(111)
-    im = ax.imshow(heatmap, extent=extent, interpolation='nearest')
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-    cb = plt.colorbar(im, cax=cax)
-    cb.set_label("Number of the messages")
-    plt.savefig('./img/month_'+name+'.png', bbox_inches='tight')
+    m = max(y)
+    plt.plot(x,y)
+    plt.axis([0, 24, 0, 1.1*float(m)])
+    
+    plt.ylabel('Number of messages')
+    plt.xlabel('Hours')
+    plt.title('Distribution of the messages over hours' + title)
+    plt.xticks(np.arange(0,24,1), np.arange(0,24,1))
     #plt.show()
+    plt.savefig('./days_'+name+'.png', bbox_inches='tight')
     
 sqldb = './output/'+username+'/stats.db'
-#generate(sqldb, name='july')
+generate(sqldb)
 print '1'
 #generate(sqldb,yearmax=2010, yearmin=2010, name="2010", title = ' (2010)')
 print '2'
@@ -92,5 +85,5 @@ print '4'
 print '5'
 #generate(sqldb,yearmax=2012, yearmin=2012, name="2012", title = ' (2012)')
 print '6'
-generate(sqldb, name="total", title = ' (total)')
+#generate(sqldb, name="total", title = ' (total)')
 
