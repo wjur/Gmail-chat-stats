@@ -282,8 +282,8 @@ class MonthsDaysHours:
 			days = gap.days
 		
 		
-		heatmap = [0 for x in range(days+1)]
-		for x in range(days+1):
+		heatmap = [0 for x in range(days)]
+		for x in range(days):
 			heatmap[x] = [0 for y in range(24)]
 
 		conn = sqlite3.connect(sqldb)	
@@ -291,7 +291,7 @@ class MonthsDaysHours:
 		cur = conn.cursor()
 		cur.execute(query)
 		for row in cur:
-			heatmap[int(row[0])][row[1]] = row[2]
+			heatmap[int(row[0])-1][row[1]] = row[2]
 		conn.close()
 		#print heatmap
 		extent = [0, 24, 0, days]
@@ -299,7 +299,8 @@ class MonthsDaysHours:
 		plt.ylabel('Days')
 		plt.xlabel('Hour')
 		plt.title('Distribution of the messages over days and hours' + title)
-		#plt.yticks(np.arange(0.0,7.0,1)+0.5,('Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun') )
+		names = np.arange(1, days++1, 1) 
+		plt.yticks(np.arange(1,days+1,1), names[::-1])
 		#plt.xticks(np.arange(0,24,1)+0.5, np.arange(0,24,1))
 		ax = plt.subplot(111)
 		im = ax.imshow(heatmap, extent=extent, interpolation='nearest')
