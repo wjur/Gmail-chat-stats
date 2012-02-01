@@ -1,3 +1,4 @@
+from datetime import date
 import numpy as np
 import numpy.random
 #import matplotlib.figure
@@ -50,10 +51,16 @@ class Year:
 	
 	def __init__(self,sqldb, name, yearmin=None, yearmax=None, monthmin=None, monthmax=None, daymin=None, daymax=None, hourmin=None, hourmax=None, direction=None, people=None, title=""):
 		wheresql = self.__generateWhere(yearmin, yearmax, monthmin, monthmax, daymin, daymax, hourmin, hourmax, direction, people)
-		""" Generates 2d histogram (day / hour) in selected year """
-		#I should check how many days the year has but I'm too lazy to do it.
-		heatmap = [0 for x in range(367)]
-		for x in range(367):
+		""" Generates 2d histogram (day / hour) in selected year """	
+		days = 366
+		if (yearmin == yearmax and yearmin != None):
+			first = date(yearmin, 1, 1)
+			last = date(yearmin, 12, 31)
+			year = last - first;
+			days = year.days + 1
+		
+		heatmap = [0 for x in range(days+1)]
+		for x in range(days+1):
 			heatmap[x] = [0 for y in range(24)]
 
 		conn = sqlite3.connect(sqldb)	
@@ -65,15 +72,16 @@ class Year:
 			heatmap[(int(row[0]))][row[1]] = row[2]
 		conn.close()
 
-		# Same here. I should check but.. whatever! None cares 
-		extent = [0, 24, 0, 366]
+		extent = [0, 23, 0, days]
 		plt.clf()
-		plt.figure(num=None, figsize=(50, 50), dpi=80, facecolor='w', edgecolor='k') 
+		plt.figure(num=None, figsize=(50, 50), facecolor='w', edgecolor='k') 
 		plt.ylabel('Days')
 		plt.xlabel('Hour')
-		ax = plt.subplot(111)
-		im = ax.imshow(heatmap, extent=extent, interpolation='nearest')
-
+		
+		plt.yticks([0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334],['Jun', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+		plt.xticks(np.arange(0,24,1), np.arange(0,24,1))
+		
+		plt.imshow(heatmap, extent=extent, interpolation='nearest')
 		plt.savefig(name+'.png', bbox_inches='tight')
 		
 class Hours:
@@ -256,10 +264,27 @@ class MonthsDaysHours:
 		return wheresql
 
 	
-	def __init__(self,sqldb, name, yearmin=None, yearmax=None, monthmin=None, monthmax=None, daymin=None, daymax=None, hourmin=None, hourmax=None, direction=None, people=None, title=""):
+	def __init__(self,sqldb, name, yearmin=None, yearmax=None, year=None, month=None, monthmin=None, monthmax=None, daymin=None, daymax=None, hourmin=None, hourmax=None, direction=None, people=None, title=""):
+		if year != None:
+			yearmin = yearmax = year
+			
+		if month != None:
+			monthmin = monthmax = month
+		
+		
 		wheresql = self.__generateWhere(yearmin, yearmax, monthmin, monthmax, daymin, daymax, hourmin, hourmax, direction, people)
-		heatmap = [0 for x in range(32)]
-		for x in range(32):
+		
+		days = 31
+		if (yearmin == yearmax and yearmin != None and monthmin == monthmax and monthmax != None):
+			first = date(yearmin, monthmin, 1)
+			last = date(yearmin if monthmin<12 else yearmin+1, monthmin+1 if monthmin+1 < 13 else 1 , 1)
+			gap = last - first
+			days = gap.days
+			print "%d - %d" % (monthmax, days)
+		
+		
+		heatmap = [0 for x in range(days+1)]
+		for x in range(days+1):
 			heatmap[x] = [0 for y in range(24)]
 
 		conn = sqlite3.connect(sqldb)	
@@ -270,7 +295,7 @@ class MonthsDaysHours:
 			heatmap[int(row[0])][row[1]] = row[2]
 		conn.close()
 		#print heatmap
-		extent = [0, 24, 0, 31]
+		extent = [0, 24, 0, days]
 		plt.clf()
 		plt.ylabel('Days')
 		plt.xlabel('Hour')
