@@ -9,7 +9,7 @@ class AbstractFetcher(object):
     def __init__(self, username, password, chats):
         self.username = username
         self.password = password
-        self.cachePath = './output/%s/cache/' % self.username
+        self.cachePath = './data/%s/cache/' % self.username
         if not os.path.isdir(self.cachePath):
             os.makedirs(self.cachePath)
         if (chats != None):

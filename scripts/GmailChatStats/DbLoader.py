@@ -13,7 +13,7 @@ class DbLoader:
         self.password = password
         self.chats = chats
         self.mode = mode
-        directory = './output/%s/' % self.username
+        directory = './data/%s/' % self.username
         if not os.path.isdir(directory):
             os.makedirs(directory)
         self.dbFile = directory + '/stats.db'
