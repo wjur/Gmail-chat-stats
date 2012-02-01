@@ -280,7 +280,6 @@ class MonthsDaysHours:
 			last = date(yearmin if monthmin<12 else yearmin+1, monthmin+1 if monthmin+1 < 13 else 1 , 1)
 			gap = last - first
 			days = gap.days
-			print "%d - %d" % (monthmax, days)
 		
 		
 		heatmap = [0 for x in range(days+1)]
