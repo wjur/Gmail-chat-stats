@@ -82,11 +82,13 @@ class DbLoader:
                 total = len(ids)
                 counter = 1
                 for mid in ids:
-                    sys.stdout.write( "\rProcessing: %d/%d (%d%%)" % (counter, total, (100*counter)/total))
-                    sys.stdout.flush()
-                    counter = counter + 1
-                    #chat by chat get the XML and process it
-                    self.__ProcessChat(mid, self.fetcher.GetXMLString(mid))
+					if counter % 10 == 0:
+						self.conn.commit()
+					sys.stdout.write( "\rProcessing: %d/%d (%d%%)" % (counter, total, (100*counter)/total))
+					sys.stdout.flush()
+					counter = counter + 1
+					self.__ProcessChat(mid, self.fetcher.GetXMLString(mid))
+                    
             self.__Finalise()
     
     def __Finalise(self):
