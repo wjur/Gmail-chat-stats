@@ -6,7 +6,6 @@ from xml.dom import minidom
 from GmailChatStats.Fetcher import FetcherFactory
 
 class DbLoader:
-
     def __init__(self,username, password, chats, mode):
         self.username = username
         self.fullLogin = "%s@gmail.com" % self.username
@@ -82,13 +81,12 @@ class DbLoader:
                 total = len(ids)
                 counter = 1
                 for mid in ids:
-					if counter % 10 == 0:
-						self.conn.commit()
-					sys.stdout.write( "\rProcessing: %d/%d (%d%%)" % (counter, total, (100*counter)/total))
-					sys.stdout.flush()
-					counter = counter + 1
-					self.__ProcessChat(mid, self.fetcher.GetXMLString(mid))
-                    
+                    if counter % 10 == 0:
+                        self.conn.commit()
+                    sys.stdout.write( "\rProcessing: %d/%d (%d%%)" % (counter, total, (100*counter)/total))
+                    sys.stdout.flush()
+                    counter = counter + 1
+                    self.__ProcessChat(mid, self.fetcher.GetXMLString(mid))
             self.__Finalise()
     
     def __Finalise(self):
