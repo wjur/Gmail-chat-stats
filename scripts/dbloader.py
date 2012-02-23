@@ -18,8 +18,14 @@ if __name__ == '__main__':
         dbloader.Process()
     except AuthError as e:
          print "Authentication error " + e.value
-    except LabelError as e:
-        print "Incorrect chats label. Choose one of those:"
+         
+    except InvalidLabelError as e:
+        print "Supplied label incorrect. Choose one of those:"
+        for l in e.labels:
+            print "\t" + l  
+               
+    except LabelNotFoundError as e:
+        print "Supplied label not found. Choose one of those:"
         for l in e.labels:
             print "\t" + l
         
