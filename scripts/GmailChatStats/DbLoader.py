@@ -51,7 +51,10 @@ class DbLoader:
         self.conn.execute(sqlcmd)
         
     def __ProcessChat(self,mid,chat):
-        chatTree = minidom.parseString(chat)
+        try:
+            chatTree = minidom.parseString(chat)
+        except:
+            raise InvalidLabelError("", self.labels)
         chatNodes = chatTree.childNodes
         converstationNode = chatNodes[0]
         msgs = converstationNode.childNodes
@@ -64,7 +67,7 @@ class DbLoader:
         self.fetcher.Connect()
         print "Authorisation OK"
         #check if correct label was specified
-        self.fetcher.CheckLabel()
+        self.labels = self.fetcher.CheckLabel()
         self.__ConnectToDb()
         #now we can process all chats
         ids = self.fetcher.GetIDs()

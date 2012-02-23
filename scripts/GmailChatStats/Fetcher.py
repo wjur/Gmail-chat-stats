@@ -111,9 +111,12 @@ class NormalFetcher(AbstractFetcher):
 
     def CheckLabel(self):
         result = self.mail.select(self.chats, 1)
+        folders = self.mail.list()[1]
+        labels = super(NormalFetcher, self).PrepareLabelsList(folders)
         if result[0] == 'NO':
-            folders = self.mail.list()[1]
-            raise LabelError('Label ' + self.chats + ' not found.', super(NormalFetcher, self).PrepareLabelsList(folders))
+            raise LabelError('Label ' + self.chats + ' not found.', labels)
+        return labels
+            
     def Finalise(self):
         self.mail.close()
         self.mail.logout()
@@ -174,7 +177,7 @@ class NocacheFetcher(AbstractFetcher):
 
     def Connect(self):
         if (self.password == None):
-            super(NormalFetcher, self).GetPassword()
+            super(NocacheFetcher, self).GetPassword()
         self.mail = imaplib.IMAP4_SSL('imap.gmail.com')
         try:
             self.mail.login(self.username, self.password)
@@ -183,9 +186,11 @@ class NocacheFetcher(AbstractFetcher):
 
     def CheckLabel(self):
         result = self.mail.select(self.chats, 1)
+        folders = self.mail.list()[1]
+        labels = super(NocacheFetcher, self).PrepareLabelsList(folders)
         if result[0] == 'NO':
-            folders = self.mail.list()[1]
-            raise LabelError('Label ' + self.chats + ' not found.', super(NocacheFetcher, self).PrepareLabelsList(folders))
+            raise LabelError('Label ' + self.chats + ' not found.', labels)
+        return labels
             
     def Finalise(self):
         self.mail.close()
@@ -193,13 +198,13 @@ class NocacheFetcher(AbstractFetcher):
 
     def GetIDs(self):
         cached = Set([])
-        online = super(NormalFetcher, self).GetOnlineIDs()
+        online = super(NocacheFetcher, self).GetOnlineIDs()
         ids = cached | online
-        self.cached = super(NormalFetcher, self).set_to_sortedlist(cached)
-        self.online = super(NormalFetcher, self).set_to_sortedlist(online)
-        self.ids = super(NormalFetcher, self).set_to_sortedlist(ids)
+        self.cached = super(NocacheFetcher, self).set_to_sortedlist(cached)
+        self.online = super(NocacheFetcher, self).set_to_sortedlist(online)
+        self.ids = super(NocacheFetcher, self).set_to_sortedlist(ids)
         return self.ids
 
     def GetXMLString(self, mid):
-        xmlString = super(NormalFetcher, self).GetXMLStringFromServer(mid)
+        xmlString = super(NocacheFetcher, self).GetXMLStringFromServer(mid)
         return xmlString
