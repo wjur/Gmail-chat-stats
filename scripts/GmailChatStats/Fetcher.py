@@ -92,7 +92,7 @@ def FetcherFactory(username, password, chats, mode):
         for fetchers in AbstractFetcher.__subclasses__():
                 if fetchers.is_registrar_for(mode):
                     return fetchers(username, password, chats)
-        raise InvalidMode("The selected mode is incorrect")
+        raise ModeError("The selected mode is incorrect")
 
 
 class NormalFetcher(AbstractFetcher):

@@ -16,6 +16,8 @@ if __name__ == '__main__':
     try:
         dbloader = DbLoader(args.username, args.password, args.chats, args.mode)
         dbloader.Process()
+    except AuthError as e:
+         print "Authentication error " + e.value
     except LabelError as e:
         print "Incorrect chats label. Choose one of those:"
         for l in e.labels:
