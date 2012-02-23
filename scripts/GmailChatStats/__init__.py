@@ -1,1 +1,1 @@
-__all__ = ['DbLoader', 'Fetcher', 'Reports']
+__all__ = ['DbLoader', 'Fetcher', 'Reports', 'Errors']
