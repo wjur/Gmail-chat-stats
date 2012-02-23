@@ -1,5 +1,6 @@
 import argparse
 from GmailChatStats.DbLoader import DbLoader
+from GmailChatStats.Errors import *
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Builds stats DB.')
@@ -12,6 +13,15 @@ if __name__ == '__main__':
     In 'withcache' mode (default) cache will be used and incrementally exapanded by fetching messages from Gmail. In 'nocache' mode cache will not be used (only online data). In 'cacheonly' mode there the data will be fetched only from cache (only offline data)")
 
     args = parser.parse_args()
-    dbloader = DbLoader(args.username, args.password, args.chats, args.mode)
-    dbloader.Process()
+    try:
+        dbloader = DbLoader(args.username, args.password, args.chats, args.mode)
+        dbloader.Process()
+    except LabelError as e:
+        print "Incorrect chats label. Choose one of those:"
+        for l in e.labels:
+            print "\t" + l
+        
+    except GmailChatStatsError as e:
+        print e
     print "\n"
+    

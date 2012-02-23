@@ -2,11 +2,15 @@ import imaplib
 import os
 import email
 import getpass
+import re
 from sets import Set
+from GmailChatStats.Errors import *
 
 
 class AbstractFetcher(object):
     def __init__(self, username, password, chats):
+        if username == None or username == "":
+            raise LoginError("Login can not be empty!")
         self.username = username
         self.password = password
         self.cachePath = './data/%s/cache/' % self.username
@@ -16,6 +20,16 @@ class AbstractFetcher(object):
             self.chats = chats
         else:
             self.chats = "[Gmail]/Chats"
+    
+    def PrepareLabelsList(self, labels):
+        ret = []
+        for label in labels:
+            m = re.search('(?<=\(\\\\HasNoChildren\)\ "/"\ )"\[Gmail\]/[\w\&\-]+"', label)
+            if (m != None):
+                g = m.group(0)
+                if (g != None):
+                    ret.append(g)
+        return ret
             
     def CheckChats(self):
         raise NotImplementedError
@@ -78,7 +92,7 @@ def FetcherFactory(username, password, chats, mode):
         for fetchers in AbstractFetcher.__subclasses__():
                 if fetchers.is_registrar_for(mode):
                     return fetchers(username, password, chats)
-        raise ValueError
+        raise InvalidMode("The selected mode is incorrect")
 
 
 class NormalFetcher(AbstractFetcher):
@@ -91,17 +105,15 @@ class NormalFetcher(AbstractFetcher):
             super(NormalFetcher, self).GetPassword()
         self.mail = imaplib.IMAP4_SSL('imap.gmail.com')
         try:
-            result = self.mail.login(self.username, self.password)
-            return [True, "Connected succesfully"]
+            self.mail.login(self.username, self.password)
         except imaplib.IMAP4.error as err:
-            return [False, err]
+            raise PasswordError(err)
 
     def CheckLabel(self):
         result = self.mail.select(self.chats, 1)
         if result[0] == 'NO':
             folders = self.mail.list()[1]
-            return [False, folders]
-        return [True, None]
+            raise LabelError('Label ' + self.chats + ' not found.', super(NormalFetcher, self).PrepareLabelsList(folders))
     def Finalise(self):
         self.mail.close()
         self.mail.logout()
@@ -135,7 +147,8 @@ class CacheonlyFetcher(AbstractFetcher):
 
 
     def CheckLabel(self):
-        return [True, None]
+        return
+         
     def Finalise(self):
         return
 
@@ -164,17 +177,16 @@ class NocacheFetcher(AbstractFetcher):
             super(NormalFetcher, self).GetPassword()
         self.mail = imaplib.IMAP4_SSL('imap.gmail.com')
         try:
-            result = self.mail.login(self.username, self.password)
-            return [True, "Connected succesfully"]
+            self.mail.login(self.username, self.password)
         except imaplib.IMAP4.error as err:
-            return [False, err]
+            raise PasswordError(err)
 
     def CheckLabel(self):
         result = self.mail.select(self.chats, 1)
         if result[0] == 'NO':
             folders = self.mail.list()[1]
-            return [False, folders]
-        return [True, None]
+            raise LabelError('Label ' + self.chats + ' not found.', super(NocacheFetcher, self).PrepareLabelsList(folders))
+            
     def Finalise(self):
         self.mail.close()
         self.mail.logout()

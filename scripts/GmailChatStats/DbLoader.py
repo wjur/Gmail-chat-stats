@@ -4,6 +4,7 @@ import datetime
 import sqlite3
 from xml.dom import minidom
 from GmailChatStats.Fetcher import FetcherFactory
+from GmailChatStats.Errors import *
 
 class DbLoader:
     def __init__(self,username, password, chats, mode):
@@ -17,11 +18,7 @@ class DbLoader:
             os.makedirs(directory)
         self.dbFile = directory + '/stats.db'
         self.tableName = 'stats'
-    def __PrintLabels(self,labels):
-        for label in labels:
-            parts = label.split(' ')
-            if (parts[2] != '"INBOX"' and parts[2] != '"/"'):
-                print "\t", parts[2]
+
     def __ConnectToDb(self):
         self.conn = sqlite3.connect(self.dbFile)
         try:
@@ -64,30 +61,23 @@ class DbLoader:
     def Process(self):
         self.fetcher = FetcherFactory(self.username, self.password, self.chats, self.mode)
         #check if it's possible to connect to gmail (in offline mode it will return no errors)
-        loginOk, msg = self.fetcher.Connect()
-        if (not loginOk): print msg
-        else:
-            print "Authorisation OK"
-            #check if correct label was specified
-            labelOk, labels = self.fetcher.CheckLabel()
-            if (not labelOk):
-                # lets print the labels so the user can choose the correct one next time ;)
-                print "Incorrect chats label. Choose one of those:"
-                self.__PrintLabels(labels)
-            else:
-                self.__ConnectToDb()
-                #now we can process all chats
-                ids = self.fetcher.GetIDs()
-                total = len(ids)
-                counter = 1
-                for mid in ids:
-                    if counter % 10 == 0:
-                        self.conn.commit()
-                    sys.stdout.write( "\rProcessing: %d/%d (%d%%)" % (counter, total, (100*counter)/total))
-                    sys.stdout.flush()
-                    counter = counter + 1
-                    self.__ProcessChat(mid, self.fetcher.GetXMLString(mid))
-            self.__Finalise()
+        self.fetcher.Connect()
+        print "Authorisation OK"
+        #check if correct label was specified
+        self.fetcher.CheckLabel()
+        self.__ConnectToDb()
+        #now we can process all chats
+        ids = self.fetcher.GetIDs()
+        total = len(ids)
+        counter = 1
+        for mid in ids:
+            if counter % 10 == 0:
+                self.conn.commit()
+            sys.stdout.write( "\rProcessing: %d/%d (%d%%)" % (counter, total, (100*counter)/total))
+            sys.stdout.flush()
+            counter = counter + 1
+            self.__ProcessChat(mid, self.fetcher.GetXMLString(mid))
+        self.__Finalise()
     
     def __Finalise(self):
         try:
